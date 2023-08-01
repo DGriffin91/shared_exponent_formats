@@ -1,6 +1,8 @@
 pub mod rgb9e5;
 pub mod xyz13e6;
 pub mod xyz14e3;
+pub mod xyz18e7;
+pub mod xyz18e7_f64test;
 pub mod xyz8e5;
 pub mod xyz9e2;
 
@@ -12,8 +14,19 @@ pub fn nan_to_zero(value: f32) -> f32 {
     }
 }
 
+pub fn nan_to_zero64(value: f64) -> f64 {
+    if value.is_nan() {
+        0.0
+    } else {
+        value
+    }
+}
+
 // 10f32.powi(n - 3) is not accurate enough
 pub const POWLUT: [f32; 10] = [
+    0.01, 0.1, 1.0, 10.0, 100.0, 1000.0, 10000.0, 100000.0, 1000000.0, 10000000.0,
+];
+pub const POWLUT64: [f64; 10] = [
     0.01, 0.1, 1.0, 10.0, 100.0, 1000.0, 10000.0, 100000.0, 1000000.0, 10000000.0,
 ];
 

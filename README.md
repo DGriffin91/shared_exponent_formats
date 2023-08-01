@@ -10,6 +10,7 @@
 | 3x f16   | 6     | 65504      | true   | 0.00000653 | 0.00005261 | 0.00042066 | 0.00667667 | 0.05379717 | 0.43026507  |
 | xyz13e6  | 6     | 4294443000 | true   | 0.00000165 | 0.00001318 | 0.00017735 | 0.00168843 | 0.01350524 | 0.10790101  |
 | xyz14e3  | 6     | 16         | true   | 0.00000659 | 0.00000659 | 0.00005271 | 0.00084312 |
+| xyz18e7  | 8     | 1.85E+19   | true   | 0.00000005 | 0.00000041 | 0.00000532 | 0.00005286 | 0.00042286 | 0.00338291  |
 | 8unorm   | 3     | 1          | false  | 0.00339042 | 0.00338363 | 0.00338270 |
 
 Max Δ is max distance from f32 input 3d coordinate found. Tested with 10,000,000 random coordinates per range.
@@ -23,3 +24,6 @@ Max Δ is max distance from f32 input 3d coordinate found. Tested with 10,000,00
 X is input value random range. Y is distance from f32 input 3d coordinate:
 ![demo](avg_delta.PNG)
 ![demo](max_avg_delta.PNG)
+
+Tested against f64, including compairson to 3x f32 (f32 max is 3.4E+38)
+![demo](max_avg_delta_f64.PNG)

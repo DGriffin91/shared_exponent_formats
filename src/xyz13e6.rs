@@ -15,7 +15,7 @@ pub const MAX_XYZ13E6: f32 = 4294443000.0;
 pub const EPSILON_XYZ13E6: f32 = -5.684342e-14;
 */
 
-pub const MAX_XYZ13E6_EXP: u64 = XYZ13E6_MAX_VALID_BIASED_EXP as u64 - XYZ13E6_EXP_BIAS as u64;
+pub const MAX_XYZ13E6_EXP: u32 = XYZ13E6_MAX_VALID_BIASED_EXP as u32 - XYZ13E6_EXP_BIAS as u32;
 pub const XYZ13E6_MANTISSA_VALUES: i32 = 1 << XYZ13E6_MANTISSA_BITS;
 pub const MAX_XYZ13E6_MANTISSA: i32 = XYZ13E6_MANTISSA_VALUES - 1;
 pub const MAX_XYZ13E6_MANTISSAU: u32 = (XYZ13E6_MANTISSA_VALUES - 1) as u32;
@@ -106,8 +106,8 @@ pub fn xyz13e6_to_vec3(v: (u32, u16)) -> [f32; 3] {
     let zsign = bitfield_extract_u16(v.1, 15, 1) as f32 * 2.0 - 1.0;
 
     [
-        xsign * bitfield_extract(v.0, 0, XYZ13E6_MANTISSA_BITS as u32) as f32 * scale,
-        ysign * bitfield_extract(v.0, 13, XYZ13E6_MANTISSA_BITS as u32) as f32 * scale,
+        xsign * bitfield_extract(v.0, 0, XYZ13E6_MANTISSA_BITSU) as f32 * scale,
+        ysign * bitfield_extract(v.0, 13, XYZ13E6_MANTISSA_BITSU) as f32 * scale,
         zsign * bitfield_extract_u16(v.1, 0, XYZ13E6_MANTISSA_BITS as u16) as f32 * scale,
     ]
 }
