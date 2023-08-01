@@ -101,9 +101,9 @@ pub fn xyz13e6_to_vec3(v: (u32, u16)) -> [f32; 3] {
         - XYZ13E6_MANTISSA_BITS;
     let scale = (exponent as f32).exp2();
 
-    let xsign = bitfield_extract_u16(v.1, 13, 1) as f32 * 2.0 - 1.0;
-    let ysign = bitfield_extract_u16(v.1, 14, 1) as f32 * 2.0 - 1.0;
-    let zsign = bitfield_extract_u16(v.1, 15, 1) as f32 * 2.0 - 1.0;
+    let xsign = (bitfield_extract_u16(v.1, 13, 1) << 1) as f32 - 1.0;
+    let ysign = (bitfield_extract_u16(v.1, 14, 1) << 1) as f32 - 1.0;
+    let zsign = (bitfield_extract_u16(v.1, 15, 1) << 1) as f32 - 1.0;
 
     [
         xsign * bitfield_extract(v.0, 0, XYZ13E6_MANTISSA_BITSU) as f32 * scale,

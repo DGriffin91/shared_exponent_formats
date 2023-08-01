@@ -92,9 +92,9 @@ pub fn xyz8e5_to_vec3(v: u32) -> [f32; 3] {
         - XYZ8E5_MANTISSA_BITS;
     let scale = (exponent as f32).exp2();
 
-    let rsign = bitfield_extract(v, 8, 1) as f32 * 2.0 - 1.0;
-    let gsign = bitfield_extract(v, 17, 1) as f32 * 2.0 - 1.0;
-    let bsign = bitfield_extract(v, 26, 1) as f32 * 2.0 - 1.0;
+    let rsign = (bitfield_extract(v, 8, 1) << 1) as f32 - 1.0;
+    let gsign = (bitfield_extract(v, 17, 1) << 1) as f32 - 1.0;
+    let bsign = (bitfield_extract(v, 26, 1) << 1) as f32 - 1.0;
 
     [
         rsign * bitfield_extract(v, 0, XYZ8E5_MANTISSA_BITS as u32) as f32 * scale,

@@ -109,9 +109,9 @@ pub fn xyz14e3_to_vec3(v: (u32, u16)) -> [f32; 3] {
     let exponent = exp as i32 - XYZ14E3_EXP_BIAS - XYZ14E3_MANTISSA_BITS;
     let scale = (exponent as f32).exp2() * NORM_MULT;
 
-    let xsign = bitfield_extract(v.0, 28, 1) as f32 * 2.0 - 1.0;
-    let ysign = bitfield_extract(v.0, 29, 1) as f32 * 2.0 - 1.0;
-    let zsign = bitfield_extract(v.0, 30, 1) as f32 * 2.0 - 1.0;
+    let xsign = (bitfield_extract(v.0, 28, 1) << 1) as f32 - 1.0;
+    let ysign = (bitfield_extract(v.0, 29, 1) << 1) as f32 - 1.0;
+    let zsign = (bitfield_extract(v.0, 30, 1) << 1) as f32 - 1.0;
 
     [
         xsign * bitfield_extract(v.0, 0, XYZ14E3_MANTISSA_BITS as u32) as f32 * scale,
