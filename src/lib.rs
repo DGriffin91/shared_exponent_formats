@@ -222,8 +222,8 @@ pub mod test_util {
     #[test]
     pub fn print_full_table() {
         let iterations = DEFUALT_ITERATIONS * 10;
-        println!("| Name     | Bytes | Max value  | Signed |  0.01 Max Δ | 0.1 Max Δ  | 1.0 Max Δ  | 10.0 Max Δ | 1000 Max Δ | 10000 Max Δ |");
-        println!("| -------- | ----- | ---------- | ------ | ----------- | ---------- | ---------- | ---------- | ---------- | ----------- |");
+        println!("| Name     | Bytes | Max value  | Signed |  0.01 Max Δ | 0.1 Max Δ  | 1.0 Max Δ  | 10.0 Max Δ | 100 Max Δ | 1000 Max Δ |");
+        println!("| -------- | ----- | ---------- | ------ | ----------- | ---------- | ---------- | ---------- | --------- | ---------- |");
         crate::xyz8e5::tests::print_table_row();
         crate::xyz8e5::tests::print_typ_ranges(iterations);
         crate::rgb9e5::tests::print_table_row();

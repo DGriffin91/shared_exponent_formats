@@ -31,9 +31,9 @@ pub const EPSILON_XYZ9E2: f32 =
 // Similar to https://www.khronos.org/registry/OpenGL/extensions/EXT/EXT_texture_shared_exponent.txt
 #[inline]
 pub fn vec3_to_xyz9e2(xyz: [f32; 3]) -> u32 {
-    let rsign = xyz[0].is_sign_positive() as u32;
-    let gsign = xyz[1].is_sign_positive() as u32;
-    let bsign = xyz[2].is_sign_positive() as u32;
+    let xsign = xyz[0].is_sign_positive() as u32;
+    let ysign = xyz[1].is_sign_positive() as u32;
+    let zsign = xyz[2].is_sign_positive() as u32;
 
     let xc = nan_to_zero(xyz[0].abs()).min(MAX_XYZ9E2) / NORM_MULT;
     let yc = nan_to_zero(xyz[1].abs()).min(MAX_XYZ9E2) / NORM_MULT;
@@ -57,28 +57,28 @@ pub fn vec3_to_xyz9e2(xyz: [f32; 3]) -> u32 {
         debug_assert!(maxm <= MAX_XYZ9E2_MANTISSA);
     }
 
-    let rm = (xc / denom + 0.5).floor() as i32;
-    let gm = (yc / denom + 0.5).floor() as i32;
-    let bm = (zc / denom + 0.5).floor() as i32;
+    let xm = (xc / denom + 0.5).floor() as i32;
+    let ym = (yc / denom + 0.5).floor() as i32;
+    let zm = (zc / denom + 0.5).floor() as i32;
 
-    debug_assert!(rm <= MAX_XYZ9E2_MANTISSA);
-    debug_assert!(gm <= MAX_XYZ9E2_MANTISSA);
-    debug_assert!(bm <= MAX_XYZ9E2_MANTISSA);
-    debug_assert!(rm >= 0);
-    debug_assert!(gm >= 0);
-    debug_assert!(bm >= 0);
+    debug_assert!(xm <= MAX_XYZ9E2_MANTISSA);
+    debug_assert!(ym <= MAX_XYZ9E2_MANTISSA);
+    debug_assert!(zm <= MAX_XYZ9E2_MANTISSA);
+    debug_assert!(xm >= 0);
+    debug_assert!(ym >= 0);
+    debug_assert!(zm >= 0);
 
-    debug_assert_eq!(rm as u32, rm as u32 & MAX_XYZ9E2_MANTISSAU);
-    debug_assert_eq!(gm as u32, gm as u32 & MAX_XYZ9E2_MANTISSAU);
-    debug_assert_eq!(bm as u32, bm as u32 & MAX_XYZ9E2_MANTISSAU);
+    debug_assert_eq!(xm as u32, xm as u32 & MAX_XYZ9E2_MANTISSAU);
+    debug_assert_eq!(ym as u32, ym as u32 & MAX_XYZ9E2_MANTISSAU);
+    debug_assert_eq!(zm as u32, zm as u32 & MAX_XYZ9E2_MANTISSAU);
 
-    let rm = rm as u32 | rsign << 9;
-    let gm = gm as u32 | gsign << 9;
-    let bm = bm as u32 | bsign << 9;
+    let xm = xm as u32 | xsign << 9;
+    let ym = ym as u32 | ysign << 9;
+    let zm = zm as u32 | zsign << 9;
     let exp_shared = exp_shared as u32;
 
     #[allow(clippy::identity_op)]
-    let ret = (exp_shared << 30) | (bm << 20) | (gm << 10) | (rm << 0);
+    let ret = (exp_shared << 30) | (zm << 20) | (ym << 10) | (xm << 0);
 
     ret
 }
@@ -96,14 +96,14 @@ pub fn xyz9e2_to_vec3(v: u32) -> [f32; 3] {
         - XYZ9E2_MANTISSA_BITS;
     let scale = (exponent as f32).exp2() * NORM_MULT;
 
-    let rsign = (bitfield_extract(v, 9, 1) << 1) as f32 - 1.0;
-    let gsign = (bitfield_extract(v, 19, 1) << 1) as f32 - 1.0;
-    let bsign = (bitfield_extract(v, 29, 1) << 1) as f32 - 1.0;
+    let xsign = (bitfield_extract(v, 9, 1) << 1) as f32 - 1.0;
+    let ysign = (bitfield_extract(v, 19, 1) << 1) as f32 - 1.0;
+    let zsign = (bitfield_extract(v, 29, 1) << 1) as f32 - 1.0;
 
     [
-        rsign * bitfield_extract(v, 0, XYZ9E2_MANTISSA_BITS as u32) as f32 * scale,
-        gsign * bitfield_extract(v, 10, XYZ9E2_MANTISSA_BITS as u32) as f32 * scale,
-        bsign * bitfield_extract(v, 20, XYZ9E2_MANTISSA_BITS as u32) as f32 * scale,
+        xsign * bitfield_extract(v, 0, XYZ9E2_MANTISSA_BITS as u32) as f32 * scale,
+        ysign * bitfield_extract(v, 10, XYZ9E2_MANTISSA_BITS as u32) as f32 * scale,
+        zsign * bitfield_extract(v, 20, XYZ9E2_MANTISSA_BITS as u32) as f32 * scale,
     ]
 }
 
