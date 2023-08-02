@@ -27,9 +27,9 @@ pub const EPSILON_XYZ13E6: f32 =
 // Similar to https://www.khronos.org/registry/OpenGL/extensions/EXT/EXT_texture_shared_exponent.txt
 #[inline]
 pub fn vec3_to_xyz13e6(xyz: [f32; 3]) -> (u32, u16) {
-    let xsign = xyz[0].is_sign_positive() as u16;
-    let ysign = xyz[1].is_sign_positive() as u16;
-    let zsign = xyz[2].is_sign_positive() as u16;
+    let xsign = xyz[0].is_sign_negative() as u16;
+    let ysign = xyz[1].is_sign_negative() as u16;
+    let zsign = xyz[2].is_sign_negative() as u16;
 
     let xc = nan_to_zero(xyz[0].abs()).min(MAX_XYZ13E6);
     let yc = nan_to_zero(xyz[1].abs()).min(MAX_XYZ13E6);
@@ -106,9 +106,9 @@ pub fn xyz13e6_to_vec3(v: (u32, u16)) -> [f32; 3] {
     let zsign = (bitfield_extract_u16(v.1, 15, 1) << 1) as f32 - 1.0;
 
     [
-        xsign * bitfield_extract(v.0, 0, XYZ13E6_MANTISSA_BITSU) as f32 * scale,
-        ysign * bitfield_extract(v.0, 13, XYZ13E6_MANTISSA_BITSU) as f32 * scale,
-        zsign * bitfield_extract_u16(v.1, 0, XYZ13E6_MANTISSA_BITS as u16) as f32 * scale,
+        -xsign * bitfield_extract(v.0, 0, XYZ13E6_MANTISSA_BITSU) as f32 * scale,
+        -ysign * bitfield_extract(v.0, 13, XYZ13E6_MANTISSA_BITSU) as f32 * scale,
+        -zsign * bitfield_extract_u16(v.1, 0, XYZ13E6_MANTISSA_BITS as u16) as f32 * scale,
     ]
 }
 

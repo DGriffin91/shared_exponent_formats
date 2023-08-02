@@ -27,9 +27,9 @@ pub const EPSILON_XYZ18E7: f64 =
 // Similar to https://www.khronos.org/registry/OpenGL/extensions/EXT/EXT_texture_shared_exponent.txt
 #[inline]
 pub fn vec3_to_xyz18e7(xyz: [f64; 3]) -> (u32, u32) {
-    let xsign = xyz[0].is_sign_positive() as u32;
-    let ysign = xyz[1].is_sign_positive() as u32;
-    let zsign = xyz[2].is_sign_positive() as u32;
+    let xsign = xyz[0].is_sign_negative() as u32;
+    let ysign = xyz[1].is_sign_negative() as u32;
+    let zsign = xyz[2].is_sign_negative() as u32;
 
     let xc = nan_to_zero64(xyz[0].abs()).min(MAX_XYZ18E7);
     let yc = nan_to_zero64(xyz[1].abs()).min(MAX_XYZ18E7);
@@ -105,9 +105,9 @@ pub fn xyz18e7_to_vec3(v: (u32, u32)) -> [f64; 3] {
     let zm = bitfield_extract(v.1, 4, XYZ18E7_MANTISSA_BITSU);
 
     [
-        xsign * xm as f64 * scale,
-        ysign * ym as f64 * scale,
-        zsign * zm as f64 * scale,
+        -xsign * xm as f64 * scale,
+        -ysign * ym as f64 * scale,
+        -zsign * zm as f64 * scale,
     ]
 }
 

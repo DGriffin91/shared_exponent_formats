@@ -236,6 +236,8 @@ pub mod test_util {
         crate::xyz13e6::tests::print_typ_ranges(iterations);
         crate::xyz14e3::tests::print_table_row();
         crate::xyz14e3::tests::print_typ_ranges(iterations);
+        crate::xyz18e7::tests::print_table_row();
+        crate::xyz18e7::tests::print_typ_ranges(iterations);
         print_table_row_8unorm();
         print_typ_ranges_8unorm(iterations);
     }
