@@ -96,14 +96,22 @@ pub fn xyz9e2_to_vec3(v: u32) -> [f32; 3] {
         - XYZ9E2_MANTISSA_BITS;
     let scale = (exponent as f32).exp2() * NORM_MULT;
 
-    let xsign = (bitfield_extract(v, 9, 1) << 1) as f32 - 1.0;
-    let ysign = (bitfield_extract(v, 19, 1) << 1) as f32 - 1.0;
-    let zsign = (bitfield_extract(v, 29, 1) << 1) as f32 - 1.0;
+    // Extract both the mantissa and sign at the same time.
+    let xb = bitfield_extract(v, 0, XYZ9E2_MANTISSA_BITSU + 1);
+    let yb = bitfield_extract(v, 10, XYZ9E2_MANTISSA_BITSU + 1);
+    let zb = bitfield_extract(v, 20, XYZ9E2_MANTISSA_BITSU + 1);
 
+    // xb & 0x1FFu masks out for just the mantissa
+    let xm = ((xb & 0x1FFu32) as f32).to_bits();
+    let ym = ((yb & 0x1FFu32) as f32).to_bits();
+    let zm = ((zb & 0x1FFu32) as f32).to_bits();
+
+    // xb & 0x200u << 23u masks out just the sign bit and shifts it over
+    // to the corresponding IEEE 754 sign location
     [
-        -xsign * bitfield_extract(v, 0, XYZ9E2_MANTISSA_BITS as u32) as f32 * scale,
-        -ysign * bitfield_extract(v, 10, XYZ9E2_MANTISSA_BITS as u32) as f32 * scale,
-        -zsign * bitfield_extract(v, 20, XYZ9E2_MANTISSA_BITS as u32) as f32 * scale,
+        f32::from_bits(xm | (xb & 0x200u32) << 22u32) * scale,
+        f32::from_bits(ym | (yb & 0x200u32) << 22u32) * scale,
+        f32::from_bits(zm | (zb & 0x200u32) << 22u32) * scale,
     ]
 }
 

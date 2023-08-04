@@ -92,15 +92,22 @@ pub fn xyz8e5_to_vec3(v: u32) -> [f32; 3] {
         - XYZ8E5_MANTISSA_BITS;
     let scale = (exponent as f32).exp2();
 
-    let xsign = (bitfield_extract(v, 8, 1) << 1) as f32 - 1.0;
-    let ysign = (bitfield_extract(v, 17, 1) << 1) as f32 - 1.0;
-    let zsign = (bitfield_extract(v, 26, 1) << 1) as f32 - 1.0;
+    // Extract both the mantissa and sign at the same time.
+    let xb = bitfield_extract(v, 0, XYZ8E5_MANTISSA_BITSU + 1);
+    let yb = bitfield_extract(v, 9, XYZ8E5_MANTISSA_BITSU + 1);
+    let zb = bitfield_extract(v, 18, XYZ8E5_MANTISSA_BITSU + 1);
 
-    // TODO copy optimized wgsl version
+    // xb & 0xFFu masks out for just the mantissa
+    let xm = ((xb & 0xFFu32) as f32).to_bits();
+    let ym = ((yb & 0xFFu32) as f32).to_bits();
+    let zm = ((zb & 0xFFu32) as f32).to_bits();
+
+    // xb & 0x100u << 23u masks out just the sign bit and shifts it over
+    // to the corresponding IEEE 754 sign location
     [
-        -xsign * bitfield_extract(v, 0, XYZ8E5_MANTISSA_BITS as u32) as f32 * scale,
-        -ysign * bitfield_extract(v, 9, XYZ8E5_MANTISSA_BITS as u32) as f32 * scale,
-        -zsign * bitfield_extract(v, 18, XYZ8E5_MANTISSA_BITS as u32) as f32 * scale,
+        f32::from_bits(xm | (xb & 0x100u32) << 23u32) * scale,
+        f32::from_bits(ym | (yb & 0x100u32) << 23u32) * scale,
+        f32::from_bits(zm | (zb & 0x100u32) << 23u32) * scale,
     ]
 }
 

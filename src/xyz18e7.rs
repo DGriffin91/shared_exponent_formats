@@ -96,18 +96,20 @@ pub fn xyz18e7_to_vec3(v: (u32, u32)) -> [f32; 3] {
         - XYZ18E7_MANTISSA_BITS;
     let scale = (exponent as f32).exp2();
 
-    let xsign = (bitfield_extract(v.1, 22, 1) << 1) as f32 - 1.0;
-    let ysign = (bitfield_extract(v.1, 23, 1) << 1) as f32 - 1.0;
-    let zsign = (bitfield_extract(v.1, 24, 1) << 1) as f32 - 1.0;
+    let xb = bitfield_extract(v.0, 0, XYZ18E7_MANTISSA_BITSU);
+    let yb = bitfield_extract(v.0, 18, XYZ18E7_MANTISSA_BITSU) | bitfield_extract(v.1, 0, 4) << 14;
+    let zb = bitfield_extract(v.1, 4, XYZ18E7_MANTISSA_BITSU);
 
-    let xm = bitfield_extract(v.0, 0, XYZ18E7_MANTISSA_BITSU);
-    let ym = bitfield_extract(v.0, 18, XYZ18E7_MANTISSA_BITSU) | bitfield_extract(v.1, 0, 4) << 14;
-    let zm = bitfield_extract(v.1, 4, XYZ18E7_MANTISSA_BITSU);
+    // Extract the sign bits
+    let xs = bitfield_extract(v.1, 22, 1);
+    let ys = bitfield_extract(v.1, 23, 1);
+    let zs = bitfield_extract(v.1, 24, 1);
 
+    // Then xs << 31 shifts it over to the corresponding IEEE 754 sign location
     [
-        -xsign * xm as f32 * scale,
-        -ysign * ym as f32 * scale,
-        -zsign * zm as f32 * scale,
+        f32::from_bits((xb as f32).to_bits() | xs << 31) * scale,
+        f32::from_bits((yb as f32).to_bits() | ys << 31) * scale,
+        f32::from_bits((zb as f32).to_bits() | zs << 31) * scale,
     ]
 }
 
@@ -156,12 +158,6 @@ pub mod tests {
             print!(" {:.8} |", max);
         }
         println!("");
-    }
-
-    #[test]
-    pub fn temp() {
-        let iterations = DEFUALT_ITERATIONS * 10;
-        print_typ_ranges(iterations)
     }
 
     #[test]
