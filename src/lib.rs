@@ -1,3 +1,4 @@
+pub mod custom_shared_format;
 pub mod rgb9e5;
 pub mod xyz13e6;
 pub mod xyz14e3;

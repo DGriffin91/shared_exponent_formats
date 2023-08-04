@@ -114,9 +114,9 @@ pub fn xyz14e3_to_vec3(v: (u32, u16)) -> [f32; 3] {
     let zb = bitfield_extract_u16(v.1, 0, XYZ14E3_MANTISSA_BITSU as u16);
 
     // Extract the sign bits
-    let xs = bitfield_extract(v.0, 28, 1) as u32;
-    let ys = bitfield_extract(v.0, 29, 1) as u32;
-    let zs = bitfield_extract(v.0, 30, 1) as u32;
+    let xs = bitfield_extract(v.0, 28, 1);
+    let ys = bitfield_extract(v.0, 29, 1);
+    let zs = bitfield_extract(v.0, 30, 1);
 
     // Then xs << 31 shifts it over to the corresponding IEEE 754 sign location
     [
