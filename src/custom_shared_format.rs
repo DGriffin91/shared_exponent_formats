@@ -126,50 +126,7 @@ pub mod tests {
 
     use glam::Vec3;
 
-    use crate::{
-        test_util::{test_conversion, DEFUALT_ITERATIONS},
-        POWLUT,
-    };
-
     use super::*;
-
-    #[test]
-    fn get_data_for_plot() {
-        let exponent_bits = 5;
-        let mantissa_bits = 24;
-
-        let format = SharedExponentFormat::new(exponent_bits, mantissa_bits);
-        dbg!(format);
-
-        println!("RANGE   \tMAX      \tAVG");
-        for i in 1..65 {
-            let mut n = i as f32 * 0.25;
-            n = n.exp2() - 1.0;
-            let (max, avg) = test_conversion(n, DEFUALT_ITERATIONS, false, true, |v| {
-                let (enc, exp_shared) = format.encode3(v.into());
-                format.decode3(enc, exp_shared).into()
-            });
-            println!("{:.8}\t{:.8}\t{:.8}", n, max, avg);
-        }
-    }
-
-    pub fn print_typ_ranges(iterations: usize) {
-        let exponent_bits = 8;
-        let mantissa_bits = 24;
-        let format = SharedExponentFormat::new(exponent_bits, mantissa_bits);
-        for i in 0..6 {
-            let n = POWLUT[i];
-            if n > format.max_exp as f32 {
-                break;
-            }
-            let (max, _avg) = test_conversion(n, iterations, false, true, |v| {
-                let (enc, exp_shared) = format.encode3(v.into());
-                format.decode3(enc, exp_shared).into()
-            });
-            print!(" {:.8} |", max);
-        }
-        println!("");
-    }
 
     #[test]
     fn test_edge_cases() {

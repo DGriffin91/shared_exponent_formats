@@ -1,5 +1,9 @@
 use crate::nan_to_zero;
 
+pub const NAME: &str = "xyz8e5";
+pub const BYTES: u8 = 4;
+pub const SIGNED: bool = true;
+
 pub const XYZ8E5_EXPONENT_BITS: i32 = 5;
 pub const XYZ8E5_MANTISSA_BITS: i32 = 8;
 pub const XYZ8E5_MANTISSA_BITSU: u32 = 8;
@@ -116,50 +120,26 @@ pub mod tests {
 
     use glam::Vec3;
 
-    use crate::{
-        test_util::{test_conversion, DEFUALT_ITERATIONS},
-        POWLUT,
-    };
+    use crate::evaluate::test_util::{Report, DEFUALT_ITERATIONS};
 
     use super::*;
 
     #[test]
-    fn get_data_for_plot() {
-        dbg!(
-            MAX_XYZ8E5_EXP,
-            XYZ8E5_MANTISSA_VALUES,
-            MAX_XYZ8E5_MANTISSA,
-            MAX_XYZ8E5_MANTISSAU,
-            MAX_XYZ8E5,
-            EPSILON_XYZ8E5,
-        );
-        println!("RANGE   \tMAX      \tAVG");
-        for i in 1..65 {
-            let mut n = i as f32 * 0.25;
-            n = n.exp2() - 1.0;
-            let (max, avg) = test_conversion(n, DEFUALT_ITERATIONS, false, false, |v| {
+    fn test_accuracy() {
+        for (dist, max) in [
+            (0.01, 5.28e-5),
+            (0.1, 4.23e-4),
+            (1.0, 5.82e-3),
+            (10.0, 5.40e-2),
+            (100.0, 4.33e-1),
+            (1000.0, 3.46),
+        ] {
+            let r = Report::new(dist, DEFUALT_ITERATIONS, true, |v| {
                 xyz8e5_to_vec3(vec3_to_xyz8e5(v.into())).into()
             });
-            println!("{:.8}\t{:.8}\t{:.8}", n, max, avg);
+            dbg!(r.max_dist, max);
+            assert!(r.max_dist < max);
         }
-    }
-
-    pub fn print_typ_ranges(iterations: usize) {
-        for i in 0..6 {
-            let n = POWLUT[i];
-            if n > MAX_XYZ8E5 {
-                break;
-            }
-            let (max, _avg) = test_conversion(n, iterations, false, false, |v| {
-                xyz8e5_to_vec3(vec3_to_xyz8e5(v.into())).into()
-            });
-            print!(" {:.8} |", max);
-        }
-        println!("");
-    }
-
-    pub fn print_table_row() {
-        print!("| xyz8e5 | 4 | {} | true | ", MAX_XYZ8E5);
     }
 
     #[test]

@@ -1,26 +1,31 @@
 use crate::nan_to_zero;
 
-const RGB9E5_EXPONENT_BITS: i32 = 5;
-const RGB9E5_MANTISSA_BITS: i32 = 9;
-const RGB9E5_EXP_BIAS: i32 = 15;
-const RGB9E5_MAX_VALID_BIASED_EXP: i32 = 31;
+pub const NAME: &str = "rgb9e5";
+pub const BYTES: u8 = 4;
+pub const SIGNED: bool = false;
+
+pub const RGB9E5_EXPONENT_BITS: i32 = 5;
+pub const RGB9E5_MANTISSA_BITS: i32 = 9;
+pub const RGB9E5_EXP_BIAS: i32 = 15;
+pub const RGB9E5_MAX_VALID_BIASED_EXP: i32 = 31;
 
 /*
-const MAX_RGB9E5_EXP: i32 = 16;
-const RGB9E5_MANTISSA_VALUES: i32 = 512;
-const MAX_RGB9E5_MANTISSA: i32 = 511;
-const MAX_RGB9E5: f32 = 65408.0;
-const EPSILON_RGB9E5: f32 = 5.9604645e-8;
+pub const MAX_RGB9E5_EXP: i32 = 16;
+pub const RGB9E5_MANTISSA_VALUES: i32 = 512;
+pub const MAX_RGB9E5_MANTISSA: i32 = 511;
+pub const MAX_RGB9E5: f32 = 65408.0;
+pub const EPSILON_RGB9E5: f32 = 5.9604645e-8;
  */
 
-const MAX_RGB9E5_EXP: i32 = RGB9E5_MAX_VALID_BIASED_EXP - RGB9E5_EXP_BIAS;
-const RGB9E5_MANTISSA_VALUES: i32 = 1 << RGB9E5_MANTISSA_BITS;
-const MAX_RGB9E5_MANTISSA: i32 = RGB9E5_MANTISSA_VALUES - 1;
+pub const MAX_RGB9E5_EXP: i32 = RGB9E5_MAX_VALID_BIASED_EXP - RGB9E5_EXP_BIAS;
+pub const RGB9E5_MANTISSA_VALUES: i32 = 1 << RGB9E5_MANTISSA_BITS;
+pub const MAX_RGB9E5_MANTISSA: i32 = RGB9E5_MANTISSA_VALUES - 1;
 #[allow(dead_code)]
-const MAX_RGB9E5: f32 =
+pub const MAX_RGB9E5: f32 =
     (MAX_RGB9E5_MANTISSA as f32) / RGB9E5_MANTISSA_VALUES as f32 * (1 << MAX_RGB9E5_EXP) as f32;
 #[allow(dead_code)]
-const EPSILON_RGB9E5: f32 = (1.0 / RGB9E5_MANTISSA_VALUES as f32) / (1 << RGB9E5_EXP_BIAS) as f32;
+pub const EPSILON_RGB9E5: f32 =
+    (1.0 / RGB9E5_MANTISSA_VALUES as f32) / (1 << RGB9E5_EXP_BIAS) as f32;
 
 // https://www.khronos.org/registry/OpenGL/extensions/EXT/EXT_texture_shared_exponent.txt
 #[inline]
@@ -94,49 +99,25 @@ pub mod tests {
 
     use glam::Vec3;
 
-    use crate::{
-        test_util::{test_conversion, DEFUALT_ITERATIONS},
-        POWLUT,
-    };
+    use crate::evaluate::test_util::{Report, DEFUALT_ITERATIONS};
 
     use super::*;
 
     #[test]
-    fn get_data_for_plot() {
-        dbg!(
-            MAX_RGB9E5_EXP,
-            RGB9E5_MANTISSA_VALUES,
-            MAX_RGB9E5_MANTISSA,
-            MAX_RGB9E5,
-            EPSILON_RGB9E5,
-        );
-        println!("RANGE   \tMAX      \tAVG");
-        for i in 1..65 {
-            let mut n = i as f32 * 0.25;
-            n = n.exp2() - 1.0;
-            let (max, avg) = test_conversion(n, DEFUALT_ITERATIONS, false, true, |v| {
+    fn test_accuracy() {
+        for (dist, max) in [
+            (0.01, 2.64e-5),
+            (0.1, 2.11e-4),
+            (1.0, 2.91e-3),
+            (10.0, 2.70e-2),
+            (100.0, 2.16e-1),
+            (1000.0, 1.73),
+        ] {
+            let r = Report::new(dist, DEFUALT_ITERATIONS, false, |v| {
                 rgb9e5_to_vec3(vec3_to_rgb9e5(v.into())).into()
             });
-            println!("{:.8}\t{:.8}\t{:.8}", n, max, avg);
+            assert!(r.max_dist < max);
         }
-    }
-
-    pub fn print_typ_ranges(iterations: usize) {
-        for i in 0..6 {
-            let n = POWLUT[i];
-            if n > MAX_RGB9E5 {
-                break;
-            }
-            let (max, _avg) = test_conversion(n, iterations, false, true, |v| {
-                rgb9e5_to_vec3(vec3_to_rgb9e5(v.into())).into()
-            });
-            print!(" {:.8} |", max);
-        }
-        println!("");
-    }
-
-    pub fn print_table_row() {
-        print!("| rgb9e5 | 4 | {} | false | ", MAX_RGB9E5);
     }
 
     #[test]

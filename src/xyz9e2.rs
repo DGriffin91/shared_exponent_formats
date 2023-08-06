@@ -1,5 +1,9 @@
 use crate::nan_to_zero;
 
+pub const NAME: &str = "xyz9e2";
+pub const BYTES: u8 = 4;
+pub const SIGNED: bool = true;
+
 pub const XYZ9E2_EXPONENT_BITS: i32 = 2;
 pub const XYZ9E2_MANTISSA_BITS: i32 = 9;
 pub const XYZ9E2_MANTISSA_BITSU: u32 = 9;
@@ -118,53 +122,8 @@ pub fn xyz9e2_to_vec3(v: u32) -> [f32; 3] {
 #[cfg(test)]
 pub mod tests {
 
-    use glam::Vec3;
-
-    use crate::{
-        test_util::{test_conversion, DEFUALT_ITERATIONS},
-        POWLUT,
-    };
-
     use super::*;
-
-    #[test]
-    fn get_data_for_plot() {
-        dbg!(
-            MAX_XYZ9E2_EXP,
-            XYZ9E2_MANTISSA_VALUES,
-            MAX_XYZ9E2_MANTISSA,
-            MAX_XYZ9E2_MANTISSAU,
-            MAX_XYZ9E2,
-            EPSILON_XYZ9E2,
-        );
-        println!("RANGE   \tMAX      \tAVG");
-        for i in 1..5 {
-            let mut n = i as f32 * 0.25;
-            n = n.exp2() - 1.0;
-            let (max, avg) = test_conversion(n, DEFUALT_ITERATIONS, false, false, |v| {
-                xyz9e2_to_vec3(vec3_to_xyz9e2([v.x, v.y, v.z])).into()
-            });
-            println!("{:.8}\t{:.8}\t{:.8}", n, max, avg);
-        }
-    }
-
-    pub fn print_typ_ranges(iterations: usize) {
-        for i in 0..6 {
-            let n = POWLUT[i];
-            if n > MAX_XYZ9E2 {
-                break;
-            }
-            let (max, _avg) = test_conversion(n, iterations, false, false, |v| {
-                xyz9e2_to_vec3(vec3_to_xyz9e2([v.x, v.y, v.z])).into()
-            });
-            print!(" {:.8} |", max);
-        }
-        println!("");
-    }
-
-    pub fn print_table_row() {
-        print!("| xyz9e2 | 4 | {} | true | ", MAX_XYZ9E2);
-    }
+    use glam::Vec3;
 
     #[test]
     fn test_edge_cases() {

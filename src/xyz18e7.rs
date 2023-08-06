@@ -1,5 +1,9 @@
 use crate::nan_to_zero;
 
+pub const NAME: &str = "xyz18e7";
+pub const BYTES: u8 = 8;
+pub const SIGNED: bool = true;
+
 pub const XYZ18E7_EXPONENT_BITS: i32 = 7;
 pub const XYZ18E7_MANTISSA_BITS: i32 = 18;
 pub const XYZ18E7_MANTISSA_BITSU: u32 = 18;
@@ -118,51 +122,25 @@ pub mod tests {
 
     use glam::Vec3;
 
-    use crate::{
-        test_util::{test_conversion, DEFUALT_ITERATIONS},
-        POWLUT,
-    };
+    use crate::evaluate::test_util::{Report, DEFUALT_ITERATIONS};
 
     use super::*;
 
     #[test]
-    fn get_data_for_plot() {
-        dbg!(
-            MAX_XYZ18E7_EXP,
-            XYZ18E7_MANTISSA_VALUES,
-            MAX_XYZ18E7_MANTISSA,
-            MAX_XYZ18E7_MANTISSAU,
-            MAX_XYZ18E7,
-            EPSILON_XYZ18E7,
-        );
-        println!("RANGE   \tMAX      \tAVG");
-        for i in 1..65 {
-            let mut n = i as f32 * 0.25;
-            n = n.exp2() - 1.0;
-            let (max, avg) = test_conversion(n, DEFUALT_ITERATIONS, false, false, |v| {
-                xyz18e7_to_vec3(vec3_to_xyz18e7([v.x, v.y, v.z])).into()
+    fn test_accuracy() {
+        for (dist, max) in [
+            (0.01, 5.01e-8),
+            (0.1, 4.13e-7),
+            (1.0, 5.65e-6),
+            (10.0, 5.29e-5),
+            (100.0, 4.23e-4),
+            (1000.0, 3.39e-3),
+        ] {
+            let r = Report::new(dist, DEFUALT_ITERATIONS, true, |v| {
+                xyz18e7_to_vec3(vec3_to_xyz18e7(v.into())).into()
             });
-            println!("{:.8}\t{:.8}\t{:.8}", n, max, avg);
+            assert!(r.max_dist < max);
         }
-    }
-
-    pub fn print_typ_ranges(iterations: usize) {
-        for i in 0..6 {
-            let n = POWLUT[i];
-            if n > MAX_XYZ18E7 {
-                break;
-            }
-            let (max, _avg) = test_conversion(n, iterations, false, false, |v| {
-                xyz18e7_to_vec3(vec3_to_xyz18e7([v.x, v.y, v.z])).into()
-            });
-            print!(" {:.8} |", max);
-        }
-        println!("");
-    }
-
-    #[test]
-    pub fn print_table_row() {
-        print!("| xyz18e7 | 8 | {} | true | ", MAX_XYZ18E7);
     }
 
     #[test]

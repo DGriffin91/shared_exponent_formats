@@ -1,5 +1,9 @@
 use crate::nan_to_zero;
 
+pub const NAME: &str = "xyz13e6";
+pub const BYTES: u8 = 6;
+pub const SIGNED: bool = true;
+
 pub const XYZ13E6_EXPONENT_BITS: i32 = 6;
 pub const XYZ13E6_MANTISSA_BITS: i32 = 13;
 pub const XYZ13E6_MANTISSA_BITSU: u32 = 13;
@@ -12,17 +16,17 @@ pub const XYZ13E6_MANTISSA_VALUES: i32 = 8192;
 pub const MAX_XYZ13E6_MANTISSA: i32 = 8191;
 pub const MAX_XYZ13E6_MANTISSAU: u32 = 8191;
 pub const MAX_XYZ13E6: f32 = 4294443000.0;
-pub const EPSILON_XYZ13E6: f32 = -5.684342e-14;
+pub const EPSILON_XYZ13E6: f32 = 5.684342e-14;
 */
 
-pub const MAX_XYZ13E6_EXP: u32 = XYZ13E6_MAX_VALID_BIASED_EXP as u32 - XYZ13E6_EXP_BIAS as u32;
+pub const MAX_XYZ13E6_EXP: u64 = XYZ13E6_MAX_VALID_BIASED_EXP as u64 - XYZ13E6_EXP_BIAS as u64;
 pub const XYZ13E6_MANTISSA_VALUES: i32 = 1 << XYZ13E6_MANTISSA_BITS;
 pub const MAX_XYZ13E6_MANTISSA: i32 = XYZ13E6_MANTISSA_VALUES - 1;
 pub const MAX_XYZ13E6_MANTISSAU: u32 = (XYZ13E6_MANTISSA_VALUES - 1) as u32;
 pub const MAX_XYZ13E6: f32 = (MAX_XYZ13E6_MANTISSA as f32) / XYZ13E6_MANTISSA_VALUES as f32
-    * (1u64 << MAX_XYZ13E6_EXP) as f32;
+    * (1u128 << MAX_XYZ13E6_EXP) as f32;
 pub const EPSILON_XYZ13E6: f32 =
-    (1.0 / XYZ13E6_MANTISSA_VALUES as f32) / (1 << XYZ13E6_EXP_BIAS) as f32;
+    (1.0 / XYZ13E6_MANTISSA_VALUES as f32) / (1u64 << XYZ13E6_EXP_BIAS) as f32;
 
 // Similar to https://www.khronos.org/registry/OpenGL/extensions/EXT/EXT_texture_shared_exponent.txt
 #[inline]
@@ -123,52 +127,25 @@ pub mod tests {
 
     use glam::Vec3;
 
-    use crate::{
-        test_util::{test_conversion, DEFUALT_ITERATIONS},
-        POWLUT,
-    };
+    use crate::evaluate::test_util::{Report, DEFUALT_ITERATIONS};
 
     use super::*;
 
     #[test]
-    fn get_data_for_plot() {
-        dbg!(
-            MAX_XYZ13E6_EXP,
-            XYZ13E6_MANTISSA_VALUES,
-            MAX_XYZ13E6_MANTISSA,
-            MAX_XYZ13E6_MANTISSAU,
-            MAX_XYZ13E6,
-            EPSILON_XYZ13E6,
-        );
-        println!("RANGE   \tMAX      \tAVG");
-        for i in 1..65 {
-            let mut n = i as f32 * 0.25;
-            n = n.exp2() - 1.0;
-            let (max, avg) = test_conversion(n, DEFUALT_ITERATIONS, false, false, |v| {
-                xyz13e6_to_vec3(vec3_to_xyz13e6([v.x, v.y, v.z])).into()
+    fn test_accuracy() {
+        for (dist, max) in [
+            (0.01, 1.65e-6),
+            (0.1, 1.32e-5),
+            (1.0, 1.82e-4),
+            (10.0, 1.69e-3),
+            (100.0, 1.36e-2),
+            (1000.0, 1.09e-1),
+        ] {
+            let r = Report::new(dist, DEFUALT_ITERATIONS, true, |v| {
+                xyz13e6_to_vec3(vec3_to_xyz13e6(v.into())).into()
             });
-            println!("{:.8}\t{:.8}\t{:.8}", n, max, avg);
+            assert!(r.max_dist < max);
         }
-    }
-
-    pub fn print_typ_ranges(iterations: usize) {
-        for i in 0..6 {
-            let n = POWLUT[i];
-            if n > MAX_XYZ13E6 {
-                break;
-            }
-            let (max, _avg) = test_conversion(n, iterations, false, false, |v| {
-                xyz13e6_to_vec3(vec3_to_xyz13e6([v.x, v.y, v.z])).into()
-            });
-            print!(" {:.8} |", max);
-        }
-        println!("");
-    }
-
-    #[test]
-    pub fn print_table_row() {
-        print!("| xyz13e6 | 6 | {} | true | ", MAX_XYZ13E6);
-        print_typ_ranges(1000000);
     }
 
     #[test]

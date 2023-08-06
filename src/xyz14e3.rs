@@ -1,5 +1,9 @@
 use crate::nan_to_zero;
 
+pub const NAME: &str = "xyz14e3";
+pub const BYTES: u8 = 6;
+pub const SIGNED: bool = true;
+
 pub const XYZ14E3_EXPONENT_BITS: i32 = 3;
 pub const XYZ14E3_MANTISSA_BITS: i32 = 14;
 pub const XYZ14E3_MANTISSA_BITSU: u32 = 14;
@@ -131,51 +135,7 @@ pub mod tests {
 
     use glam::Vec3;
 
-    use crate::{
-        test_util::{test_conversion, DEFUALT_ITERATIONS},
-        POWLUT,
-    };
-
     use super::*;
-
-    #[test]
-    fn get_data_for_plot() {
-        dbg!(
-            MAX_XYZ14E3_EXP,
-            XYZ14E3_MANTISSA_VALUES,
-            MAX_XYZ14E3_MANTISSA,
-            MAX_XYZ14E3_MANTISSAU,
-            MAX_XYZ14E3,
-            EPSILON_XYZ14E3,
-        );
-        println!("RANGE   \tMAX      \tAVG");
-        for i in 1..20 {
-            let mut n = i as f32 * 0.25;
-            n = n.exp2() - 1.0;
-            let (max, avg) = test_conversion(n, DEFUALT_ITERATIONS, false, false, |v| {
-                xyz14e3_to_vec3(vec3_to_xyz14e3(v.into())).into()
-            });
-            println!("{:.8}\t{:.8}\t{:.8}", n, max, avg);
-        }
-    }
-
-    pub fn print_typ_ranges(iterations: usize) {
-        for i in 0..6 {
-            let n = POWLUT[i];
-            if n > MAX_XYZ14E3 {
-                break;
-            }
-            let (max, _avg) = test_conversion(n, iterations, false, false, |v| {
-                xyz14e3_to_vec3(vec3_to_xyz14e3(v.into())).into()
-            });
-            print!(" {:.8} |", max);
-        }
-        println!("");
-    }
-
-    pub fn print_table_row() {
-        print!("| xyz14e3 | 6 | {} | true | ", MAX_XYZ14E3);
-    }
 
     #[test]
     fn test_edge_cases() {
