@@ -1,6 +1,6 @@
 # Shared Exponent Formats
 
-**WIP**
+Implementations provided in rust, glsl, and wgsl.
 
 | Name      | Bytes | Signed | Max Val | Epsilon  |
 |-----------|-------|--------|---------|----------|
@@ -24,9 +24,8 @@ Max Δ is max distance from f32 input 3d coordinate found. Tested with 1.0e8 ran
 
 - All formats reproduce 0.0 and 1.0 exactly.
 - INF becomes MAX for the respective format.
-- NAN becomes 0.0.
+- NAN becomes 0.0. (rust impl only)
 - rgb9e5 layout matches the common [GPU texture format](https://registry.khronos.org/OpenGL/extensions/EXT/EXT_texture_shared_exponent.txt)
-- TODO WGSL encoding/decoding implementations.
 
 X is input value random range. Y is distance from f32 input 3d coordinate:
 ![demo](avg_delta.PNG)

@@ -1,15 +1,15 @@
-const XYZ13E6_EXPONENT_BITS        = 7u;
-const XYZ13E6_MANTISSA_BITS        = 18;
-const XYZ13E6_MANTISSA_BITSU       = 18u;
-const XYZ13E6_EXP_BIAS             = 63;
-const XYZ13E6_MAX_VALID_BIASED_EXP = 127u;
+const XYZ18E7_EXPONENT_BITS        = 7u;
+const XYZ18E7_MANTISSA_BITS        = 18;
+const XYZ18E7_MANTISSA_BITSU       = 18u;
+const XYZ18E7_EXP_BIAS             = 63;
+const XYZ18E7_MAX_VALID_BIASED_EXP = 127u;
 
-const MAX_XYZ13E6_EXP              = 64u;
-const XYZ13E6_MANTISSA_VALUES      = 262144;
-const MAX_XYZ13E6_MANTISSA         = 262143;
-const MAX_XYZ13E6_MANTISSAU        = 262143u;
-const MAX_XYZ13E6_                 = 1.8446674e+19;
-const EPSILON_XYZ13E6_             = 4.135903e-25;
+const MAX_XYZ18E7_EXP              = 64u;
+const XYZ18E7_MANTISSA_VALUES      = 262144;
+const MAX_XYZ18E7_MANTISSA         = 262143;
+const MAX_XYZ18E7_MANTISSAU        = 262143u;
+const MAX_XYZ18E7_                 = 1.8446674e+19;
+const EPSILON_XYZ18E7_             = 4.135903e-25;
 
 fn floor_log2_(x: f32) -> i32 {
     let f = bitcast<u32>(x);
@@ -27,14 +27,14 @@ fn vec3_to_xyz18e7_(xyz: vec3<f32>) -> vec2<u32> {
     let ysign = is_sign_negative(xyz.y);
     let zsign = is_sign_negative(xyz.z);
 
-    var xyz = min(abs(xyz), vec3(MAX_XYZ13E6_));
+    var xyz = min(abs(xyz), vec3(MAX_XYZ18E7_));
 
     let maxxyz = max(xyz.x, max(xyz.y, xyz.z));
-    var exp_shared = max(-XYZ13E6_EXP_BIAS - 1, floor_log2_(maxxyz)) + 1 + XYZ13E6_EXP_BIAS;
-    var denom = exp2(f32(exp_shared - XYZ13E6_EXP_BIAS - XYZ13E6_MANTISSA_BITS));
+    var exp_shared = max(-XYZ18E7_EXP_BIAS - 1, floor_log2_(maxxyz)) + 1 + XYZ18E7_EXP_BIAS;
+    var denom = exp2(f32(exp_shared - XYZ18E7_EXP_BIAS - XYZ18E7_MANTISSA_BITS));
 
     let maxm = i32(floor(maxxyz / denom + 0.5));
-    if (maxm == XYZ13E6_MANTISSA_VALUES) {
+    if (maxm == XYZ18E7_MANTISSA_VALUES) {
         denom *= 2.0;
         exp_shared += 1;
     }
@@ -48,13 +48,13 @@ fn vec3_to_xyz18e7_(xyz: vec3<f32>) -> vec2<u32> {
 }
 
 fn xyz18e7_to_vec3_(v: vec2<u32>) -> vec3<f32> {
-    let exponent = i32(extractBits(v[1], 25u, XYZ13E6_EXPONENT_BITS)) - XYZ13E6_EXP_BIAS - XYZ13E6_MANTISSA_BITS;
+    let exponent = i32(extractBits(v[1], 25u, XYZ18E7_EXPONENT_BITS)) - XYZ18E7_EXP_BIAS - XYZ18E7_MANTISSA_BITS;
     let scale = exp2(f32(exponent));
 
     
-    let xb = extractBits(v[0], 0u, XYZ13E6_MANTISSA_BITSU);
-    let yb = extractBits(v[0], 18u, XYZ13E6_MANTISSA_BITSU) | extractBits(v[1], 0u, 4u) << 14u;
-    let zb = extractBits(v[1], 4u, XYZ13E6_MANTISSA_BITSU);
+    let xb = extractBits(v[0], 0u, XYZ18E7_MANTISSA_BITSU);
+    let yb = extractBits(v[0], 18u, XYZ18E7_MANTISSA_BITSU) | extractBits(v[1], 0u, 4u) << 14u;
+    let zb = extractBits(v[1], 4u, XYZ18E7_MANTISSA_BITSU);
 
     // Extract the sign bits, then extractBits(v[1], 22u, 1u) << 31u shifts it over to the corresponding IEEE 754 sign location.
     return vec3(
