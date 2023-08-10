@@ -3,7 +3,7 @@
 Implementations provided in rust, glsl, and wgsl.
 
 ## Overview
-Using shared exponent formats can be beneficial for storing coordinates. When storing coordinates using three separate float values, precision can be wasted if one or two axes have significantly larger values than the other. This results in the smaller axis retaining higher precision, while the overall coordinate precision is limited by the largest value. A more efficient approach is to share the exponent across all three axes.
+Using shared exponent formats can be beneficial for storing coordinates. When using three separate float values, precision can be wasted if one or two axes have significantly larger values than the other. This results in the smaller axis retaining higher precision, while the overall coordinate precision is limited by the largest value. A more efficient approach is to share the exponent across all three axes.
 
 Another use case is storing colors values. By using a shared exponent format, it is possible to allocate the precision more effectively relative to the overall luminance. rgb9e5 is widely supported by gpus for things like HDR textures.
 
