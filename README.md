@@ -2,6 +2,34 @@
 
 Implementations provided in rust, glsl, and wgsl.
 
+## Overview
+Using shared exponent formats can be beneficial for storing coordinates. When storing coordinates using three separate float values, precision can be wasted if one or two axes have significantly larger values than the other. This results in the smaller axis retaining higher precision, while the overall coordinate precision is limited by the largest value. A more efficient approach is to share the exponent across all three axes.
+
+Another use case is storing colors values. By using a shared exponent format, it is possible to allocate the precision more effectively relative to the overall luminance. rgb9e5 is widely supported by gpus for things like HDR textures.
+
+`xyz8e5` compared to `3x 8unorm`:
+- One more byte
+- Signed
+- *Much* more range: max 6e4, epsilon 1e-7 (vs 1, 4e-3)
+- Similar coordinate precision around 1.0
+- Better coordinate precision below 1.0
+
+`rgb9e5` compared to `3x 8unorm`:
+- One more byte
+- Matches common GPU texture format
+- Better coordinate precision
+- *Much* more range: Max 6e4, epsilon 6e-8 (vs 1, 4e-3)
+
+`rgb13e6` compared to `3x f16`:
+- Same size
+- Better coordinate precision
+- *Much* more range: Max 4e9, epsilon 6e-14 (vs 6e4, 1e-3)
+
+`rgb18e7` compared to `3x f16`:
+- One more byte
+- Coordinate precision half way between f16 and f32
+- ***Much*** more range: Max 1e19, epsilon 4e-25 (vs 6e4, 1e-3)
+
 | Name      | Bytes | Signed | Max Val | Epsilon  |
 |-----------|-------|--------|---------|----------|
 | 3x 8unorm | 3     | false  | 1       | 3.92e-3  |
@@ -31,11 +59,5 @@ X is input value random range. Y is distance from f32 input 3d coordinate:
 ![demo](avg_delta.PNG)
 ![demo](max_avg_delta.PNG)
 
-Tested against f64 below, including compairson to 3x f32. Note the max representable value varies significantly: 
-```
-f16:     6.55e4
-xyz13e6: 4.29e9
-xyz18e7: 1.85e19
-f32:     3.40e38
-```
+Tested against f64:
 ![demo](max_avg_delta_f64.PNG)
