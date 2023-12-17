@@ -1,3 +1,10 @@
+#[cfg(target_arch = "spirv")]
+use crate::max;
+#[cfg(not(target_arch = "spirv"))]
+use core::cmp::max;
+#[cfg(target_arch = "spirv")]
+use spirv_std::num_traits::Float;
+
 use crate::nan_to_zero;
 
 pub const NAME: &str = "rgb9e5";
@@ -36,7 +43,7 @@ pub fn vec3_to_rgb9e5(rgb: [f32; 3]) -> u32 {
 
     let maxrgb = rc.max(gc).max(bc);
     let mut exp_shared =
-        (-RGB9E5_EXP_BIAS - 1).max(maxrgb.log2().floor() as i32) + 1 + RGB9E5_EXP_BIAS;
+        max(-RGB9E5_EXP_BIAS - 1, maxrgb.log2().floor() as i32) + 1 + RGB9E5_EXP_BIAS;
 
     debug_assert!(exp_shared <= RGB9E5_MAX_VALID_BIASED_EXP);
     debug_assert!(exp_shared >= 0);

@@ -1,3 +1,10 @@
+#[cfg(target_arch = "spirv")]
+use crate::max;
+#[cfg(not(target_arch = "spirv"))]
+use core::cmp::max;
+#[cfg(target_arch = "spirv")]
+use spirv_std::num_traits::Float;
+
 use crate::nan_to_zero;
 
 #[derive(Debug, Clone, Copy)]
@@ -61,7 +68,7 @@ impl SharedExponentFormat {
         let maxrgb = nan_to_zero(maxrgb).clamp(0.0, self.max);
 
         let mut exp_shared =
-            (-self.exp_bias - 1).max(maxrgb.log2().floor() as i32) + 1 + self.exp_bias;
+            max(-self.exp_bias - 1, maxrgb.log2().floor() as i32) + 1 + self.exp_bias;
 
         debug_assert!(exp_shared <= self.max_valid_biased_exp);
         debug_assert!(exp_shared >= 0);

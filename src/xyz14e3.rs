@@ -1,3 +1,10 @@
+#[cfg(target_arch = "spirv")]
+use crate::max;
+#[cfg(not(target_arch = "spirv"))]
+use core::cmp::max;
+#[cfg(target_arch = "spirv")]
+use spirv_std::num_traits::Float;
+
 use crate::nan_to_zero;
 
 pub const NAME: &str = "xyz14e3";
@@ -45,7 +52,7 @@ pub fn vec3_to_xyz14e3(xyz: [f32; 3]) -> (u32, u16) {
 
     let maxxyz = xc.max(yc).max(zc);
     let mut exp_shared =
-        (-XYZ14E3_EXP_BIAS - 1).max(maxxyz.log2().floor() as i32) + 1 + XYZ14E3_EXP_BIAS;
+        max(-XYZ14E3_EXP_BIAS - 1, maxxyz.log2().floor() as i32) + 1 + XYZ14E3_EXP_BIAS;
 
     debug_assert!(exp_shared <= XYZ14E3_MAX_VALID_BIASED_EXP);
     debug_assert!(exp_shared >= 0);
